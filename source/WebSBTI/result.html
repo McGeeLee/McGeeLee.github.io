@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SBTI人格测试 - 结果</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="shell result-shell">
+    <div class="result-wrap card">
+      <div class="poster-box" id="posterBox">
+        <img class="poster-image" id="posterImage" src="" alt="人格图片">
+        <div class="poster-info">
+          <div class="poster-caption" id="intro"></div>
+          <div class="type-box">
+            <div class="type-kicker" id="modeKicker"></div>
+            <div class="type-name" id="typeName"></div>
+            <div class="type-subname" id="sub"></div>
+            <div class="match" id="badge"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-content">
+        <div class="analysis-box">
+          <h3>人格解析</h3>
+          <p id="desc"></p>
+        </div>
+
+        <div class="dim-box" id="dimBox">
+          <h3>十五维度分析</h3>
+          <div class="dim-list" id="dimList"></div>
+        </div>
+
+        <div class="note-box">
+          <p id="funNote"></p>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-primary" onclick="savePoster()">保存人格图片</button>
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="restartTest()">重新测试</button>
+          <button class="btn-secondary" onclick="backHome()">返回首页</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    function loadResult() {
+      const answers = getAnswers();
+      if (Object.keys(answers).length === 0) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const result = computeResult(answers);
+      saveResult(result);
+
+      document.getElementById('posterImage').src = result.posterImage;
+      document.getElementById('intro').textContent = result.finalType.intro;
+      document.getElementById('modeKicker').textContent = result.modeKicker;
+      document.getElementById('typeName').textContent = result.finalType.code + '（' + result.finalType.cn + '）';
+      document.getElementById('sub').textContent = result.sub;
+      document.getElementById('badge').textContent = result.badge;
+      document.getElementById('desc').textContent = result.finalType.desc;
+      document.getElementById('funNote').textContent = result.funNote;
+
+      const dimList = document.getElementById('dimList');
+      dimList.innerHTML = '';
+      result.dimData.forEach(dim => {
+        const dimItem = document.createElement('div');
+        dimItem.className = 'dim-item';
+        dimItem.innerHTML = `
+          <div class="dim-item-top">
+            <span class="dim-item-name">${dim.name}</span>
+            <span class="dim-item-score">等级: ${dim.level} | 分数: ${dim.score}</span>
+          </div>
+          <p>${dim.explanation}</p>
+        `;
+        dimList.appendChild(dimItem);
+      });
+    }
+
+    function savePoster() {
+      const posterImage = document.getElementById('posterImage');
+      if (!posterImage.src) {
+        alert('暂无图片可保存');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = posterImage.src;
+      link.download = 'sbti_' + document.getElementById('typeName').textContent + '.png';
+      link.click();
+    }
+
+    function restartTest() {
+      clearResult();
+      window.location.href = 'test.html';
+    }
+
+    function backHome() {
+      clearResult();
+      window.location.href = 'index.html';
+    }
+
+    loadResult();
+  </script>
+</body>
+</html>
